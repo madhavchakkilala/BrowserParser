@@ -50,6 +50,62 @@ public class Parser {
         return null;
     }
 
+    public DOMElement getNextElement(String input) {
+		int len = input.length();
+		int baseIndex = index;
+		if(index >= len)
+		{
+			return null;
+		}
+		Stack<Character> stack = new Stack<>();
+		
+		do
+		{
+			char ch = input.charAt(index);
+			if (ch == '<')
+			{
+				if(stack.size() > 0)
+				{
+					// throw exception
+				} else if (stack.size() == 0 && baseIndex != index)
+				{
+					String res = input.substring(baseIndex, index);
+					return new DOMElement("LEAF_ELEMENT", res);
+				}
+				stack.push(ch);
+			} else if(ch == '/')
+			{
+				if(stack.size() == 0)
+				{
+					// throw exception
+				} else if(baseIndex+1 != index)
+				{
+					// throw exception
+				}
+				stack.push(ch);
+			} else if(ch =='>') {
+				if(stack.size() == 0)
+				{
+					// throw exception
+				}
+				String res = input.substring(baseIndex, index+1);
+				index++;
+				DOMElement element = new DOMElement(stack.size() == 1 ? "OPENING_ELEMENT" : "CLOSING_ELEMENT", res);
+				return element;
+			} 
+			index++;
+			
+		} while(index < len);
+		
+		if(stack.size() != 0)
+		{
+			// throw exception
+		}
+		String res = input.substring(baseIndex, index);
+		DOMElement element = new DOMElement("LEAF_ELEMENT", res);
+		return element;
+	}
+    
     class Iterator{
         int index = 0;
     }
